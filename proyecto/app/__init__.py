@@ -16,6 +16,13 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_url
     db.init_app(app)
 
+    # Importa tus modelos aquí para que SQLAlchemy los reconozca
+    from .models.user import user_model # Asegúrate de que la ruta de importación sea correcta
+
+    # Crea el contexto de la aplicación y las tablas
+    with app.app_context():
+        db.create_all()
+
     @app.shell_context_processor
     def ctx():
         return {"app": app}
