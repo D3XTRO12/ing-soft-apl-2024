@@ -1,0 +1,26 @@
+services:
+  postgresql:
+    container_name: postgresql-servidor
+    image: postgres:16.2-bullseye
+    
+    networks:
+      - mired2
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.postgresql.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.postgresql.entryPoints=postgresql" #este es el entry point de traefik
+      - "traefik.tcp.routers.postgresql.service=postgresql"
+      - "traefik.tcp.services.postgresql.loadbalancer.server.port=5432"
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - PGDATA=/var/lib/postgresql/data
+    volumes:
+      - ./_data:/var/lib/postgresql
+      - ./config.sql:/docker-entrypoint-initdb.d/config.sql
+    restart: always
+
+networks:
+  mired2:
+    external: true 

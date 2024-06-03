@@ -1,0 +1,41 @@
+services:
+  reverse-proxy:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - 80:80
+      - 443:443
+      - 6379:6379
+      - 5432:5432
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./_config/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./_config/config.yml:/etc/traefik/config.yml:ro
+      - ./_certs:/etc/certs:ro
+    networks:
+      - mired2
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.um.localhost`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.tls=true"
+
+  ms1:
+    image: ms1:1.0.1
+    networks:
+      - mired2
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ms1.rule=Host(`ms1.um.localhost`)"
+      - "traefik.http.routers.ms1.tls=true"
+      - "traefik.http.services.ms1.loadbalancer.server.port=5000"
+      - "traefik.http.middlewares.ms1.circuitbreaker.expression=LatencyAtQuantileMS(50,0) > 100"
+      - "traefik.http.middlewares.ms1.circuitbreaker.expression=ResponseCodeRatio(500, 500, 0, 600) > 0.25"
+      - "traefik.http.middlewares.ms1.circuitbreaker.expression=NetworkErrorRatio() > 0.5"
+
+networks:
+  mired2:
+    external: true

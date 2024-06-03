@@ -1,0 +1,42 @@
+services:
+    reverse-proxy:
+        image: traefik:v2.11
+        container_name: traefik
+        restart: unless-stopped
+        security_opt:
+            - no-new-privileges:true
+        ports:
+            - 80:80
+            - 443:443
+            - 6379:6379
+            - 5432:5432
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - ./_config/traefik.yml:/etc/traefik/traefik.yml:ro
+            - ./_config/config.yml:/etc/traefik/config.yml:ro
+            - ./_certs:/etc/certs:ro
+        networks:
+            - mired
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.traefik=true"
+    ms4:
+        #container_name: micro1
+        image: ms1:v1.0.0
+        networks:
+            - mired
+        #ports:
+        #    - ":5000"
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.ms4.rule=Host(`ms4.um.localhost`)"
+            - "traefik.http.routers.ms4.tls=true"
+            - "traefik.http.services.ms4.loadbalancer.server.port=5000"
+            - "traefik.http.middlewares.ms4.circuitbreaker.expression=LatencyAtQuantileMS(50.0) > 100"
+            - "traefik.http.middlewares.ms4.circuitbreaker.expression=ResponseCodeRatio(500, 600, 0, 600) > 0.25"
+            - "traefik.http.middlewares.ms4.circuitbreaker.expression=NetworkErrorRatio() > 0.5"
+networks:
+    mired:
+        driver: bridge
+
+

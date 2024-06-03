@@ -1,0 +1,25 @@
+services:
+  traefik:
+    image: traefik:v2.11
+    ports:
+      - 80:80
+      - 6379:6379
+      - 443:443
+      - 8080:8080 # Puerto del panel de Traefik
+      - 5432:5432 # Exponer el puerto 5432
+      - 5000:5000
+      - 5002:5000
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./_config/traefik.yml:/etc/traefik/traefik.yml:ro"
+      - "./_config/config.yml:/etc/traefik/config.yml:ro"
+      - "./_certs:/etc/certs:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik=true"
+    networks:
+      - mired2
+
+networks:
+  mired2:
+    external: true

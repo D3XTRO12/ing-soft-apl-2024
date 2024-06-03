@@ -1,0 +1,4 @@
+#para inicial la consla interactiva
+docker exec -it postgresql-servidor bash
+# para entrar en postgres
+psql -h localhost -U pablo -d proyect_ing_soft_dev

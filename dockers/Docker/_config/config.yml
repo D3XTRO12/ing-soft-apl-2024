@@ -1,0 +1,18 @@
+http:
+  routers:
+    traefik:
+      rule: "Host(`traefik.um.localhost`)"
+      service: "api@internal"
+      tls:
+        domains:
+          - main: "um.localhost"
+            sans:
+              - "*.um.localhost"
+          - main: "um.local"
+            sans:
+              - "*.um.local"
+
+tls:
+  certificates:
+    - certFile: "/etc/certs/um-cert.pem"
+      keyFile: "/etc/certs/um-key.pem"
