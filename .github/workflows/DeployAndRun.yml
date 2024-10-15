@@ -40,7 +40,7 @@ jobs:
 
       - name: 'Generate ACR credentials'
         run: |
-          SP_NAME="${{ env.SP_NAME }}"
+          SP_NAME="${{ env.REPO_NAME }}-sp"
           SP_PASSWD=$(az ad sp create-for-rbac --name $SP_NAME --scopes ${{ env.ACR_REGISTRY_ID }} --role Contributor --query password --output tsv)
           SP_APPID=$(az ad sp list --display-name $SP_NAME --query [0].appId --output tsv)
           echo "ACR_USERNAME=$SP_APPID" >> $GITHUB_ENV
