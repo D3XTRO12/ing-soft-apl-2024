@@ -2,18 +2,9 @@ name: Deploy and Run
 
 env:
   REPO_NAME: ${{ github.event.repository.name }}
-  AZURE_LOCATION: eastus
-  CONTAINER_NAME: hello-world-pablo-ing
-  RESOURCE_GROUP: recurso-aplicada
-  CONTAINER_PORT: 5000
-  CONTAINER_CPU: 1
-  CONTAINER_MEMORY: 1
 
 on:
-  push:
-    tags: ['v*.*.*']
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
   id-token: write
@@ -22,51 +13,52 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
-      - name: Checkout GitHub Action
-        uses: actions/checkout@v2
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@v3
+     
+    - name: 'Login via Docker'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.ACR_NAME }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Login to Azure Container Registry
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ secrets.ACR_NAME }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-
-      - name: Build and push image to ACR
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.ACR_NAME }}/${{ env.REPO_NAME }}:${{ github.sha }}
+    - name: 'Build and push Docker image'
+      run: |
+        docker build . -t ${{ secrets.ACR_NAME }}/${{env.REPO_NAME}}:${{ github.sha }}
+        docker push ${{ secrets.ACR_NAME }}/${{env.REPO_NAME}}:${{ github.sha }}
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Set Azure subscription
-        run: az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Deploy Container Instance
-        uses: azure/aci-deploy@v1
-        with:
-          resource-group: ${{ env.RESOURCE_GROUP }}
-          dns-name-label: ${{ env.CONTAINER_NAME }}-${{ github.run_id }}-${{ github.run_attempt }}
-          image: ${{ secrets.ACR_NAME }}/${{ env.REPO_NAME }}:${{ github.sha }}
-          registry-login-server: ${{ secrets.ACR_NAME }}
-          registry-username: ${{ secrets.REGISTRY_USERNAME }}
-          registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-          name: ${{ env.CONTAINER_NAME }}
-          location: ${{ env.AZURE_LOCATION }}
-          ports: ${{ env.CONTAINER_PORT }}
-          cpu: ${{ env.CONTAINER_CPU }}
-          memory: ${{ env.CONTAINER_MEMORY }}
-
-      - name: Logout from Azure
-        run: az logout
-        if: always()
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: 'Deploy Container Instance'
+      uses: azure/aci-deploy@v1
+      with:
+        location: eastus
+        name: hello-world-pablo-ing
+        resource-group: recurso-aplicada
+        image: ${{ secrets.ACR_NAME }}/${{env.REPO_NAME}}:${{ github.sha }}
+        dns-name-label: hello-world-pablo-ing-${{ github.run_id }}-${{ github.run_attempt }}
+        registry-login-server: ${{ secrets.ACR_NAME }}
+        registry-username: ${{ secrets.REGISTRY_USERNAME }}
+        registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+        ports: 5000
+        cpu: 1
+        memory: 1
+    
+    - name: 'Logout from Azure'
+      run: az logout
+      if: always()
