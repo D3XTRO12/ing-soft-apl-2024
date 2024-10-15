@@ -1,0 +1,8 @@
+ing-apl/
+_pycache_/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/

@@ -1,34 +1,52 @@
 services:
-  ms1:
-    container_name: ms1
-    image: ms1:1.0.1
-    networks:
-      mired2:
-        aliases:
-          - ms1.um.localhost
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.ms1.rule=Host(`ms1.um.localhost`)"
-      - "traefik.http.routers.ms1.tls=true"
-      - "traefik.docker.network=mired2"
-      - "traefik.http.routers.ms1.entryPoints=http"
-      - "traefik.http.services.ms1.loadbalancer.server.port=5000"
-      # - "traefik.http.middlewares.ms1.circuitbreaker.expression=LatencyAtQuantileMS(50.0) > 100"
-      # - "traefik.http.middlewares.ms1.circuitbreaker.expression=ResponseCodeRatio(500, 600, 0, 600) > 0.25"
-      # - "traefik.http.middlewares.ms1.circuitbreaker.expression=NetworkErrorRatio() > 0.5"
-
-  vehicle-ms:
-    container_name: vehicle-ms
-    image: vehicle-ms:1.0.2
+  userms:
+    container_name: userms
+    image: user-ms:1.0.1
+    env_file:
+      - user_ms/.env
     networks:
       - mired2
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.vehicle-ms.entryPoints=http"
-      - "traefik.http.routers.vehicle-ms.services=vehicle-ms"
-      - "traefik.http.routers.ms1.rule=Host(`vehicle-ms.um.localhost`)"
-      - "traefik.http.routers.vehicle-ms.loadbalancer.server.port=5002"
+      - "traefik.http.routers.userms.rule=Host(`user-ms.um.localhost`)"
+      - "traefik.http.routers.userms.tls=true"
+      - "traefik.docker.network=mired2"
+      - "traefik.http.services.userms.loadbalancer.server.port=5000"
+      - "traefik.http.middlewares.userms.circuitbreaker.expression=LatencyAtQuantileMS(50.0) > 100"
+      - "traefik.http.middlewares.userms.circuitbreaker.expression=ResponseCodeRatio(500, 600, 0, 600) > 0.25"
+      - "traefik.http.middlewares.userms.circuitbreaker.expression=NetworkErrorRatio() > 0.5"
+  vehiclems:
+    container_name: vehiclems
+    image: vehicle-ms:1.0.2
+    env_file:
+      - vehicle_ms/.env
+    networks:
+      - mired2
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=mired2"
+      - "traefik.http.routers.vehiclems.tls=true"
+      - "traefik.http.routers.vehiclems.rule=Host(`vehicle-ms.um.localhost`)"
+      - "traefik.http.services.vehiclems.loadbalancer.server.port=5000"
+      - "traefik.http.middlewares.userms.circuitbreaker.expression=LatencyAtQuantileMS(50.0) > 100"
+      - "traefik.http.middlewares.userms.circuitbreaker.expression=ResponseCodeRatio(500, 600, 0, 600) > 0.25"
+      - "traefik.http.middlewares.userms.circuitbreaker.expression=NetworkErrorRatio() > 0.5"
+  categoryms:
+    container_name: categoryms
+    image: category-ms:1.0.1
+    env_file:
+      - category_ms/.env
+    networks:
+      - mired2
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.categoryms.rule=Host(`category-ms.um.localhost`)"
+      - "traefik.http.routers.categoryms.tls=true"
+      - "traefik.docker.network=mired2"
+      - "traefik.http.services.categoryms.loadbalancer.server.port=5000"
+      - "traefik.http.middlewares.categoryms.circuitbreaker.expression=LatencyAtQuantileMS(50.0) > 100"
+      - "traefik.http.middlewares.categoryms.circuitbreaker.expression=ResponseCodeRatio(500, 600, 0, 600) > 0.25"
+      - "traefik.http.middlewares.categoryms.circuitbreaker.expression=NetworkErrorRatio() > 0.5"
 networks:
   mired2:
-    external: true
-
+      external: true
