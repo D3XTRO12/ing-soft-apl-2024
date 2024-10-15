@@ -5,6 +5,8 @@ env:
   AZURE_LOCATION: eastus
   CONTAINER_NAME: hello-world-pablo-ing
   RESOURCE_GROUP: recurso-aplicada
+  IMAGE_NAME: hello-world
+  IMAGE_TAG: latest
   CONTAINER_PORT: 5000
   CONTAINER_CPU: 1
   CONTAINER_MEMORY: 1
@@ -35,7 +37,7 @@ jobs:
 
       - name: 'Build and push image to ACR'
         run: |
-          docker build . -t ${{ secrets.ACR_NAME }}/${{ env.REPO_NAME }}:${{ github.sha }}
+          docker build . -t ${{ secrets.ACR_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           docker push ${{ secrets.ACR_NAME }}/${{ env.REPO_NAME }}:${{ github.sha }}
 
   deploy:
