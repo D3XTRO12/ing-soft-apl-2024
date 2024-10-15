@@ -9,7 +9,7 @@ env:
   CONTAINER_CPU: 1
   CONTAINER_MEMORY: 1
   ACR_NAME: ${{ secrets.ACR_NAME }}
-  SP_NAME: ${{ secrets.SP_NAME }}
+  SP_NAME: universidad
 
 on:
   workflow_dispatch:
