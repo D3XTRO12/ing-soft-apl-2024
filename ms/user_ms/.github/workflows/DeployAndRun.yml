@@ -1,56 +1,61 @@
 name: Deploy and Run
+
 env:
   REPO_NAME: ${{ github.event.repository.name }}
+  AZURE_LOCATION: eastus
+  CONTAINER_NAME: flask-estructura
+  RESOURCE_GROUP: umGroupResource
+  CONTAINER_PORT: 5000
+  CONTAINER_CPU: 1
+  CONTAINER_MEMORY: 1
+  ACR_NAME: ${{ secrets.ACR_NAME }}
+
 on:
   workflow_dispatch:
+
 permissions:
   id-token: write
   contents: read
+
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
     - name: 'Checkout GitHub Action'
       uses: actions/checkout@v4
      
-    - name: 'Login via Docker'
-      uses: azure/docker-login@v1
-      with:
-        login-server: ${{ secrets.ACR_NAME }}
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
-    - run: |
-        docker build . -t ${{ secrets.ACR_NAME }}/${{env.REPO_NAME}}:${{ github.sha }}
-        docker push ${{ secrets.ACR_NAME }}/${{env.REPO_NAME}}:${{ github.sha }}
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    steps:
-    - name: 'Login via Azure CLI'
+    - name: 'Login to Azure'
       uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: 'Generate ACR credentials'
+      run: |
+        ACR_REGISTRY_ID=$(az acr show --name ${{ env.ACR_NAME }} --query id --output tsv)
+        SP_NAME="acr-service-principal"
+        SP_PASSWD=$(az ad sp create-for-rbac --name $SP_NAME --scopes $ACR_REGISTRY_ID --role acrpull --query password --output tsv)
+        SP_APPID=$(az ad sp list --display-name $SP_NAME --query [].appId --output tsv)
+        echo "ACR_USERNAME=$SP_APPID" >> $GITHUB_ENV
+        echo "ACR_PASSWORD=$SP_PASSWD" >> $GITHUB_ENV
+
+    - name: 'Build and push image to ACR'
+      run: |
+        az acr build --image ${{ env.REPO_NAME }}:${{ github.sha }} --registry ${{ env.ACR_NAME }} --file Dockerfile .
     
-    - name: 'deploy Container Instance'
+    - name: 'Deploy Container Instance'
       uses: azure/aci-deploy@v1
       with:
-        location: eastus
-        name: flask-estructura
-        resource-group: umGroupResource
-        image: ${{ secrets.ACR_NAME }}/${{env.REPO_NAME}}:${{ github.sha }}
-        dns-name-label: flask-estructura-${{ github.run_id }}-${{ github.run_attempt }}
-        registry-username: ${{ secrets.REGISTRY_USERNAME }}
-        registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-        ports: 5000
-        cpu: 1
-        memory: 1
+        resource-group: ${{ env.RESOURCE_GROUP }}
+        dns-name-label: ${{ env.CONTAINER_NAME }}-${{ github.run_id }}
+        image: ${{ env.ACR_NAME }}.azurecr.io/${{ env.REPO_NAME }}:${{ github.sha }}
+        registry-username: ${{ env.ACR_USERNAME }}
+        registry-password: ${{ env.ACR_PASSWORD }}
+        name: ${{ env.CONTAINER_NAME }}
+        location: ${{ env.AZURE_LOCATION }}
+        ports: ${{ env.CONTAINER_PORT }}
+        cpu: ${{ env.CONTAINER_CPU }}
+        memory: ${{ env.CONTAINER_MEMORY }}
     
-    - name: 'logout'
-      run: |
-        az logout
+    - name: 'Logout from Azure'
+      run: az logout
+      if: always()
