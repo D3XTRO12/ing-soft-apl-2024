@@ -38,7 +38,7 @@ jobs:
           USER_NAME=$(az ad sp list --display-name ${{ env.SERVICE_PRINCIPAL_NAME }} --query [0].appId --output tsv)
           if [ -z "$USER_NAME" ]; then
             echo "Creating new service principal"
-            SP_PASSWORD=$(az ad sp create-for-rbac --name ${{ env.SERVICE_PRINCIPAL_NAME }} --scopes $ACR_REGISTRY_ID --role acrpull --query password --output tsv)
+            SP_PASSWORD=$(az ad sp create-for-rbac --name ${{ env.SERVICE_PRINCIPAL_NAME }} --scopes $ACR_REGISTRY_ID --role Contributor --query password --output tsv)
             USER_NAME=$(az ad sp list --display-name ${{ env.SERVICE_PRINCIPAL_NAME }} --query [0].appId --output tsv)
           else
             echo "Resetting password for existing service principal"
