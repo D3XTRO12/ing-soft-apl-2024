@@ -30,8 +30,8 @@ jobs:
     
     - name: Build and Push Docker Image
       run: |
-        docker build -f ./Dockerfile -t ${{ secrets.ACR_NAME_URL }}/${{ env.REPO_NAME }} .
-        docker push ${{ secrets.ACR_NAME_URL }}/${{ env.REPO_NAME }}
+        docker build -f ./Dockerfile -t ${{ secrets.ACR_NAME_URL }}/${{ env.REPO_NAME }}:latest .
+        docker push ${{ secrets.ACR_NAME_URL }}/${{ env.REPO_NAME }}:latest
   deploy:
     needs: build
     runs-on: ubuntu-latest
