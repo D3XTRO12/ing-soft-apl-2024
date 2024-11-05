@@ -1,6 +1,6 @@
 name: Deploy and Run
 env:
-  REPO_NAME: user_ms
+  REPO_NAME: ${{github.action.repository.name}}
 
 on:
   workflow_dispatch:
@@ -23,14 +23,14 @@ jobs:
     - name: Login to Azure Container Registry
       uses: azure/docker-login@v1
       with:
-        login-server: ${{ secrets.ACR_NAME }}
+        login-server: ${{ secrets.ACR_NAME_URL }}
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
     
     - name: Build and Push Docker Image
       run: |
-        docker build -f ./Dockerfile -t ${{ secrets.ACR_NAME }}/${{ env.REPO_NAME }}:${{ github.sha }} .
-        docker push ${{ secrets.ACR_NAME }}/${{ env.REPO_NAME }}:${{ github.sha }}
+        docker build -f ./Dockerfile -t ${{ secrets.ACR_NAME_URL }}/${{ env.REPO_NAME }}:${{ github.sha }} .
+        docker push ${{ secrets.ACR_NAME_URL }}/${{ env.REPO_NAME }}:${{ github.sha }}
 
   deploy:
     needs: build
@@ -50,12 +50,12 @@ jobs:
       with:
         resource-group: ${{ secrets.RESOURCE_GROUP }}
         location: eastus
-        name: flask-estructura
+        name: ${{ env.REPO_NAME }}
         image: ${{ secrets.ACR_NAME }}/${{ env.REPO_NAME }}:${{ github.sha }}
-        dns-name-label: flask-estructura-${{ github.run_id }}-${{ github.run_attempt }}
+        dns-name-label: ${{env.REPO_NAME}}-${{ github.run_id }}-${{ github.run_attempt }}
         registry-username: ${{ secrets.REGISTRY_USERNAME }}
         registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-        ports: '5000'
+        ports: 5000
         cpu: 1
         memory: 1
     
