@@ -50,9 +50,9 @@ jobs:
       with:
         resource-group: ${{ secrets.RESOURCE_GROUP }}
         location: eastus
-        name: ${{ env.REPO_NAME }}
+        name: user-ms
         image: ${{ secrets.ACR_NAME }}/${{ env.REPO_NAME }}:${{ github.sha }}
-        dns-name-label: ${{env.REPO_NAME}}-${{ github.run_id }}-${{ github.run_attempt }}
+        dns-name-label: user-ms-${{ github.run_id }}-${{ github.run_attempt }}
         registry-username: ${{ secrets.REGISTRY_USERNAME }}
         registry-password: ${{ secrets.REGISTRY_PASSWORD }}
         ports: 5000
