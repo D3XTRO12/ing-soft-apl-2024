@@ -1,15 +1,17 @@
+# Usa la imagen base de Python 3.11
 FROM python:3.11-bullseye
 
+# Establece el directorio de trabajo dentro del contenedor
 WORKDIR /usr/src/app
 
-# Copy the requirements file first to leverage Docker cache
-COPY app/requirements.txt .
+# Copia el archivo de requirements desde user_ms/app
+COPY user_ms/app/requirements.txt .
 
-# Install dependencies
+# Instala las dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
-COPY . .
+# Copia el resto de la aplicación desde la carpeta user_ms/app
+COPY user_ms/app .
 
-# Specify the command to run the application
+# Especifica el comando para ejecutar la aplicación
 CMD ["python", "app.py"]
