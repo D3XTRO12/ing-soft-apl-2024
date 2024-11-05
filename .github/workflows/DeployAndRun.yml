@@ -1,6 +1,6 @@
 name: Deploy and Run
 env:
-  REPO_NAME: ${{github.action.repository.name}}
+  REPO_NAME: ${{github.event.repository.name}}
 
 on:
   workflow_dispatch:
