@@ -6,7 +6,7 @@ instance/*
 !instance/.gitignore
 .webassets-cache
 .env
-ing-soft-apl-2024/
+ing-2024/
 
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files
