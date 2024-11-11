@@ -13,5 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia el resto de la aplicación desde la carpeta user_ms/app
 COPY user_ms/app .
 
+#Puerto en el que se ejecutará la aplicación
+EXPOSE 5000
+
 # Especifica el comando para ejecutar la aplicación
 CMD ["python", "app.py"]
