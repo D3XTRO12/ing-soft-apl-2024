@@ -16,6 +16,8 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from azure.monitor.opentelemetry.exporter import AzureMonitorTraceExporter
+from urllib.parse import quote_plus
+from sqlalchemy.engine.url import URL
 
 # Inicialización de bases de datos y marshmallow
 db = SQLAlchemy()
@@ -26,16 +28,18 @@ def create_app():
     app = Flask(__name__)
     load_dotenv()
 
-    # Configuración de la base de datos
-    db_parameters = {
-        "user": os.getenv("DB_USER"),
-        "password": os.getenv("DB_PASSWORD"),
-        "host": os.getenv("DB_HOST"),
-        "port": os.getenv("DB_PORT"),
-        "database": os.getenv("DB_NAME")
-    }
+    # Configuración de la base de datos usando URL.create
+    db_url = URL.create(
+        "postgresql+psycopg2",
+        username=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT"),
+        database=os.getenv("DB_NAME")
+    )
+
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql+psycopg2://{db_parameters['user']}:{db_parameters['password']}@{db_parameters['host']}:{db_parameters['port']}/{db_parameters['database']}"
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 
     # Inicialización de base de datos
     db.init_app(app)
@@ -48,7 +52,6 @@ def create_app():
     app.register_blueprint(health, url_prefix='/api')
     app.register_blueprint(user, url_prefix='/user')
     app.register_blueprint(home, url_prefix='/home')
-
 
     # Configuración de OpenTelemetry
     connection_string = os.getenv('CONNECTION_STRING')
