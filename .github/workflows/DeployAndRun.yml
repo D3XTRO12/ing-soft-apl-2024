@@ -62,6 +62,10 @@ jobs:
        # INICIO DE MODIFICACIONES: Agregadas variables de entorno no sensibles
        environment-variables: |
          DB_NAME=${{ secrets.DB_NAME }}
+         DB_USER=${{secrets.DB_USER}}
+         DB_PASSWORD=${{secrets.DB_PASSWORD}}
+         DB_PORT=${{secrets.DB_PORT}}
+         DB_HOST=${{secrets.DB_HOST}}
          IMAGE_NAME=${{ secrets.ACR_NAME }}
          CONTAINER_NAME=${{ secrets.ACR_NAME }}
          IMAGE_TAG=${{ github.sha}}
