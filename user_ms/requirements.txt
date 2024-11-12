@@ -26,14 +26,6 @@ Werkzeug==3.0.2
 psycopg2-binary==2.9.9
 azure-monitor-opentelemetry==1.6.2
 azure-monitor-opentelemetry-exporter==1.0.0b31
-opentelemetry-instrumentation-flask==0.49b1
-opentelemetry-instrumentation-logging==0.49b1
+opentelemetry-instrumentation-flask==0.48b0
+opentelemetry-instrumentation-logging==0.48b0
 marshmallow-sqlalchemy==1.1.0
-
-
-# Nuevas dependencias necesarias para OpenTelemetry
-opentelemetry-api==1.28.1
-opentelemetry-sdk==1.28.1
-opentelemetry-instrumentation-requests==0.49b1   
-opentelemetry-instrumentation-sqlalchemy==0.49b1  
-opentelemetry-instrumentation==0.49b1
