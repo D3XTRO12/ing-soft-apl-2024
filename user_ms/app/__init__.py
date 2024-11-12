@@ -45,9 +45,10 @@ def create_app():
     migrate = Migrate(app)
     migrate.init_app(app, db)
 
-    from app.controllers.user_controllers import user, home
+    from app.controllers.user_controllers import user
+    from app.controllers.home_controllers import home 
     app.register_blueprint(user, url_prefix='/user')
-    app.register_blueprint(home, url_prefix='/')
+    app.register_blueprint(home, url_prefix='/home')
     #app.register_blueprint(category, url_prefix='/category')
     #app.register_blueprint(vehicle, url_prefix='/vehicle')
 

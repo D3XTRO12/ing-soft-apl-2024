@@ -17,10 +17,6 @@ def get_user_response(user, success_code=200, not_found_message="User not found"
     else:
         return jsonify({"error": not_found_message}), 404
     
-@user.route('/', methods=['GET'])
-def home():
-    return jsonify({"message": "User microservice"}), 200
-
 @user.route('/get_all', methods=['GET'])
 def find_all():
     try:
