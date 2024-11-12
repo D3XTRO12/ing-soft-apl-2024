@@ -4,6 +4,10 @@ FROM python:3.11-bullseye
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /usr/src/app
 
+#instalar ping
+RUN apt-get update
+RUN apt-get install -y build-essencial curl iputils-ping
+
 # Copia el archivo de requirements desde el contexto de user_ms
 COPY requirements.txt .
 
