@@ -1,8 +1,8 @@
-ing-apl/
-_pycache_/
-*.pyc
-*.pyo
-*.pyd
-.pytest_cache/
-.venv/
-venv/
+# Ignorar todo por defecto
+**
+
+# Permitir solo los archivos y carpetas necesarios
+!app/
+!app.py
+!.env
+!requirements.txt
