@@ -1,3 +1,4 @@
+# Dependencias existentes
 blinker==1.7.0
 certifi==2024.2.2
 charset-normalizer==3.3.2
@@ -29,3 +30,10 @@ azure-monitor-opentelemetry-exporter==1.0.0b31
 opentelemetry-instrumentation-flask==0.48b0
 opentelemetry-instrumentation-logging==0.48b0
 marshmallow-sqlalchemy==1.1.0
+
+# Nuevas dependencias necesarias para OpenTelemetry
+opentelemetry-api==1.23.0
+opentelemetry-sdk==1.23.0
+opentelemetry-instrumentation-requests==0.48b0
+opentelemetry-instrumentation-sqlalchemy==0.48b0
+opentelemetry-instrumentation==0.48b0
