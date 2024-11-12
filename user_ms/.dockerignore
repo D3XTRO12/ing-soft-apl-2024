@@ -1,5 +1,4 @@
 # Permitir solo los archivos y carpetas necesarios
 !app/
 !app.py
-!.env
 !requirements.txt
