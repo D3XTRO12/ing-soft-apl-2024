@@ -67,9 +67,15 @@ def create_app():
     logger.addHandler(handler)
     logger.setLevel(logging.NOTSET)
 
-    # Configuración del proveedor de trazas para OpenTelemetry
+    app.config['OTEL_SERVICE_NAME'] = os.getenv('OTEL_SERVICE_NAME', 'user-ms')
+
+    # Configure tracer with Azure Monitor service name
     tracer_provider = TracerProvider(
-        resource=Resource.create({SERVICE_NAME: app.config['OTEL_SERVICE_NAME']})
+        resource=Resource.create({
+            SERVICE_NAME: app.config['OTEL_SERVICE_NAME'],
+            "service.namespace": "my-namespace",  # Optional: add namespace
+            "deployment.environment": os.getenv('ENVIRONMENT', 'development')
+        })
     )
     trace.set_tracer_provider(tracer_provider)
 
@@ -78,7 +84,7 @@ def create_app():
 
     RequestsInstrumentor().instrument()
 
-    trace_exporter = AzureMonitorTraceExporter(connection_string=app.config['CONNECTION_STRING'])
+    trace_exporter = AzureMonitorTraceExporter(connection_string=connection_string)
     trace.get_tracer_provider().add_span_processor(
         BatchSpanProcessor(trace_exporter)
     )
