@@ -33,8 +33,8 @@ jobs:
     
     - name: Build and Push Docker Image
       run: |
-        docker build -f ./user_ms/Dockerfile -t ${{ secrets.ACR_NAME_URL }}/${{ env.REPO_NAME }}:${{github.sha}} .
-        docker push ${{ secrets.ACR_NAME_URL }}/${{ env.REPO_NAME }}:${{github.sha}}
+            docker build -f ./user_ms/Dockerfile -t ${{ secrets.ACR_NAME_URL }}/${{ env.REPO_NAME }}:${{ github.sha }} ./user_ms
+            docker push ${{ secrets.ACR_NAME_URL }}/${{ env.REPO_NAME }}:${{ github.sha }}
         
   deploy:
     needs: build

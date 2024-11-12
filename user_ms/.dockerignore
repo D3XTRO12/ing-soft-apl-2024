@@ -1,6 +1,3 @@
-# Ignorar todo por defecto
-**
-
 # Permitir solo los archivos y carpetas necesarios
 !app/
 !app.py
